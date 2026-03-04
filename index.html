@@ -178,6 +178,25 @@
             background: #fff;
         }
 
+        .random-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #f0f4f8;
+            padding: 10px;
+            border-radius: 12px;
+        }
+        #btn-random-pick {
+            background: #9C27B0;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .number-input-group {
             display: flex;
             align-items: center;
@@ -203,7 +222,7 @@
         #close-settings {
             width: 100%;
             padding: 15px;
-            background: var(--btn-primary); /* つぎへボタンと同じ色に変更 */
+            background: var(--btn-primary);
             color: white;
             border: none;
             border-radius: 10px;
@@ -233,6 +252,11 @@
 
         <div class="setting-row">
             <label class="main-label">表示する絵</label>
+            <div class="random-controls">
+                <input type="number" id="random-type-count" value="3" min="1" max="14">
+                <span>種類を</span>
+                <button id="btn-random-pick">ランダムにえらぶ</button>
+            </div>
             <div class="check-group">
                 <label><input type="checkbox" class="shape-check" value="tear" checked><span class="emoji-mini">💧</span> なみだ</label>
                 <label><input type="checkbox" class="shape-check" value="avocado"><span class="emoji-mini">🥑</span> アボカド</label>
@@ -313,7 +337,6 @@
     </div>
 
     <script>
-        // デフォルト設定をリクエスト通りに変更
         const config = {
             shapes: ['tear'],
             time: 700,
@@ -424,7 +447,6 @@
         function generateLayout(itemTypes) {
             const area = document.getElementById('game-area');
             const w = area.clientWidth; const h = area.clientHeight;
-            // 数が増えるため、基準サイズを少し小さく調整
             const basePx = Math.min(Math.max(Math.sqrt((w * h) / (itemTypes.length * 4)), 50), 180);
             state.layoutItems = [];
             const placed = [];
@@ -500,6 +522,27 @@
             config.size = document.getElementById('size-rule').value;
             config.answer = document.getElementById('answer-mode').value;
         }
+
+        // ランダム選択ボタンのロジック
+        document.getElementById('btn-random-pick').onclick = () => {
+            const checkboxes = Array.from(document.querySelectorAll('.shape-check'));
+            const countInput = document.getElementById('random-type-count');
+            let count = parseInt(countInput.value);
+            
+            // 範囲制限
+            if (count < 1) count = 1;
+            if (count > checkboxes.length) count = checkboxes.length;
+            countInput.value = count;
+
+            // 全解除
+            checkboxes.forEach(cb => cb.checked = false);
+
+            // シャッフルして先頭から選ぶ
+            const shuffled = checkboxes.sort(() => 0.5 - Math.random());
+            for (let i = 0; i < count; i++) {
+                shuffled[i].checked = true;
+            }
+        };
 
         const modal = document.getElementById('settings-modal');
         const overlay = document.getElementById('modal-overlay');
