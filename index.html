@@ -203,7 +203,7 @@
         #close-settings {
             width: 100%;
             padding: 15px;
-            background: #607D8B;
+            background: var(--btn-primary); /* つぎへボタンと同じ色に変更 */
             color: white;
             border: none;
             border-radius: 10px;
@@ -211,6 +211,7 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         #modal-overlay {
@@ -253,9 +254,9 @@
         <div class="setting-row">
             <label class="main-label">個数（最小 〜 最大）</label>
             <div class="number-input-group">
-                <input type="number" id="min-count" value="3" min="1" max="20">
+                <input type="number" id="min-count" value="15" min="1" max="40">
                 <span>個 〜 </span>
-                <input type="number" id="max-count" value="8" min="1" max="20">
+                <input type="number" id="max-count" value="20" min="1" max="40">
                 <span>個</span>
             </div>
         </div>
@@ -276,17 +277,23 @@
                 <div style="grid-column: span 2;">
                     <div style="font-size:0.9rem; margin-bottom:4px;">表示のルール</div>
                     <select id="color-rule" style="width:100%">
-                        <option value="normal" selected>そのまま</option>
-                        <option value="rotate">回転あり</option>
+                        <option value="normal">そのまま</option>
+                        <option value="rotate" selected>回転あり</option>
                     </select>
                 </div>
                 <div>
                     <div style="font-size:0.9rem; margin-bottom:4px;">大きさ</div>
-                    <select id="size-rule" style="width:100%"><option value="uniform">同じ</option><option value="random">バラバラ</option></select>
+                    <select id="size-rule" style="width:100%">
+                        <option value="uniform">同じ</option>
+                        <option value="random" selected>バラバラ</option>
+                    </select>
                 </div>
                 <div>
                     <div style="font-size:0.9rem; margin-bottom:4px;">回答方法</div>
-                    <select id="answer-mode" style="width:100%"><option value="buttons">2択ボタン</option><option value="none">ボタンなし</option></select>
+                    <select id="answer-mode" style="width:100%">
+                        <option value="buttons">2択ボタン</option>
+                        <option value="none" selected>ボタンなし</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -306,14 +313,15 @@
     </div>
 
     <script>
+        // デフォルト設定をリクエスト通りに変更
         const config = {
             shapes: ['tear'],
             time: 700,
-            min: 3,
-            max: 8,
-            color: 'normal',
-            size: 'uniform',
-            answer: 'buttons'
+            min: 15,
+            max: 20,
+            color: 'rotate',
+            size: 'random',
+            answer: 'none'
         };
 
         const state = {
@@ -324,20 +332,10 @@
         };
 
         const EMOJI = {
-            tear: '💧',
-            avocado: '🥑',
-            shrimp: '🍤', // コロッケをエビフライに変更
-            butterfly: '🦋',
-            smile: '🫠',
-            headphones: '🎧',
-            dolphin: '🐬',
-            fox: '🦊',
-            sleeping: '😴',
-            cake: '🍰',
-            snot: '😪',
-            greenheart: '💚',
-            whale: '🐋',
-            wave: '🌊'
+            tear: '💧', avocado: '🥑', shrimp: '🍤', butterfly: '🦋',
+            smile: '🫠', headphones: '🎧', dolphin: '🐬', fox: '🦊',
+            sleeping: '😴', cake: '🍰', snot: '😪', greenheart: '💚',
+            whale: '🐋', wave: '🌊'
         };
 
         function getEmojiHTML(type) {
@@ -426,11 +424,12 @@
         function generateLayout(itemTypes) {
             const area = document.getElementById('game-area');
             const w = area.clientWidth; const h = area.clientHeight;
-            const basePx = Math.min(Math.max(Math.sqrt((w * h) / (itemTypes.length * 3)), 70), 220);
+            // 数が増えるため、基準サイズを少し小さく調整
+            const basePx = Math.min(Math.max(Math.sqrt((w * h) / (itemTypes.length * 4)), 50), 180);
             state.layoutItems = [];
             const placed = [];
             itemTypes.forEach(type => {
-                const px = config.size === 'random' ? basePx * (0.75 + Math.random() * 0.55) : basePx;
+                const px = config.size === 'random' ? basePx * (0.65 + Math.random() * 0.7) : basePx;
                 let x, y, overlap, tries = 0;
                 do {
                     overlap = false;
@@ -438,7 +437,7 @@
                     y = Math.random() * (h - px) + px / 2;
                     for (let p of placed) {
                         const dist = Math.sqrt((x - p.x) ** 2 + (y - p.y) ** 2);
-                        if (dist < (px + p.px) / 2 * 1.05) { overlap = true; break; }
+                        if (dist < (px + p.px) / 2 * 0.95) { overlap = true; break; }
                     }
                 } while (overlap && tries++ < 150);
                 placed.push({ x, y, px });
