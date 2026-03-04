@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一瞬チャレンジ！いま何個？Pro</title>
+    <style>
+        :root {
+            --bg-color: #E0F7FA;
+            --text-color: #006064;
+            --btn-primary: #4CAF50;
+            --btn-secondary: #2196F3;
+            --choice-bg: #03A9F4;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #game-area {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        #message-overlay {
+            font-size: 5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            z-index: 20;
+            pointer-events: none;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+            width: 100%;
+            text-align: center;
+            height: 100%;
+        }
+
+        #message-overlay .emoji {
+            font-size: 7rem;
+            line-height: 1;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+        }
+
+        .shape {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+        .shape .emoji {
+            line-height: 1;
+            filter: drop-shadow(3px 3px 2px rgba(0,0,0,0.15));
+            display: block;
+        }
+
+        #action-bar {
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            background: rgba(255,255,255,0.4);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 30;
+        }
+
+        .btn-sm {
+            padding: 10px 24px;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .btn-sm:active { transform: translateY(2px); }
+        #btn-start { background: var(--btn-primary); }
+        #btn-check { background: var(--btn-secondary); display: none; }
+
+        .choice-btn {
+            padding: 10px 50px;
+            font-size: 3.5rem;
+            background: var(--choice-bg);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            margin: 0 15px;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .choice-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #settings-trigger {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 2.5rem;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            z-index: 100;
+            background: none;
+            border: none;
+        }
+        #settings-trigger:hover { opacity: 1; }
+
+        #settings-modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 200;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #333;
+        }
+
+        #settings-modal h2 {
+            margin-top: 0;
+            color: var(--text-color);
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .setting-row {
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 15px;
+        }
+
+        .setting-row label.main-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .setting-row select, .setting-row input[type="number"] {
+            padding: 10px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .number-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+        .number-input-group input { width: 80px; text-align: center; }
+
+        .check-group { display: flex; gap: 20px; flex-wrap: wrap; }
+        .check-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background: #f5f5f5;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        .check-group input[type="checkbox"] { transform: scale(1.3); }
+        .check-group .emoji-mini { font-size: 1.4rem; line-height: 1; }
+
+        #close-settings {
+            width: 100%;
+            padding: 15px;
+            background: #607D8B;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 150;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="settings-trigger">⚙️</button>
+
+    <div id="modal-overlay"></div>
+    <div id="settings-modal">
+        <h2>せってい</h2>
+
+        <div class="setting-row">
+            <label class="main-label">表示する絵</label>
+            <div class="check-group">
+                <label><input type="checkbox" class="shape-check" value="tear" checked><span class="emoji-mini">💧</span> なみだ</label>
+                <label><input type="checkbox" class="shape-check" value="avocado"><span class="emoji-mini">🥑</span> アボカド</label>
+                <label><input type="checkbox" class="shape-check" value="shrimp"><span class="emoji-mini">🍤</span> エビフライ</label>
+                <label><input type="checkbox" class="shape-check" value="butterfly"><span class="emoji-mini">🦋</span> ちょうちょ</label>
+                <label><input type="checkbox" class="shape-check" value="smile"><span class="emoji-mini">🫠</span> スマイル</label>
+                <label><input type="checkbox" class="shape-check" value="headphones"><span class="emoji-mini">🎧</span> ヘッドホン</label>
+                <label><input type="checkbox" class="shape-check" value="dolphin"><span class="emoji-mini">🐬</span> イルカ</label>
+                <label><input type="checkbox" class="shape-check" value="fox"><span class="emoji-mini">🦊</span> キツネ</label>
+                <label><input type="checkbox" class="shape-check" value="sleeping"><span class="emoji-mini">😴</span> 寝てるやつ</label>
+                <label><input type="checkbox" class="shape-check" value="cake"><span class="emoji-mini">🍰</span> ケーキ</label>
+                <label><input type="checkbox" class="shape-check" value="snot"><span class="emoji-mini">😪</span> ハナミズ</label>
+                <label><input type="checkbox" class="shape-check" value="greenheart"><span class="emoji-mini">💚</span> みどりハート</label>
+                <label><input type="checkbox" class="shape-check" value="whale"><span class="emoji-mini">🐋</span> クジラ</label>
+                <label><input type="checkbox" class="shape-check" value="wave"><span class="emoji-mini">🌊</span> なみ</label>
+            </div>
+        </div>
+
+        <div class="setting-row">
+            <label class="main-label">個数（最小 〜 最大）</label>
+            <div class="number-input-group">
+                <input type="number" id="min-count" value="3" min="1" max="20">
+                <span>個 〜 </span>
+                <input type="number" id="max-count" value="8" min="1" max="20">
+                <span>個</span>
+            </div>
+        </div>
+
+        <div class="setting-row">
+            <label class="main-label">表示時間</label>
+            <select id="display-time" style="width:100%">
+                <option value="300">0.3秒 (超速い)</option>
+                <option value="700" selected>0.7秒 (ふつう)</option>
+                <option value="1500">1.5秒 (ゆっくり)</option>
+                <option value="2500">2.5秒 (じっくり)</option>
+            </select>
+        </div>
+
+        <div class="setting-row">
+            <label class="main-label">詳細ルール</label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div style="grid-column: span 2;">
+                    <div style="font-size:0.9rem; margin-bottom:4px;">表示のルール</div>
+                    <select id="color-rule" style="width:100%">
+                        <option value="normal" selected>そのまま</option>
+                        <option value="rotate">回転あり</option>
+                    </select>
+                </div>
+                <div>
+                    <div style="font-size:0.9rem; margin-bottom:4px;">大きさ</div>
+                    <select id="size-rule" style="width:100%"><option value="uniform">同じ</option><option value="random">バラバラ</option></select>
+                </div>
+                <div>
+                    <div style="font-size:0.9rem; margin-bottom:4px;">回答方法</div>
+                    <select id="answer-mode" style="width:100%"><option value="buttons">2択ボタン</option><option value="none">ボタンなし</option></select>
+                </div>
+            </div>
+        </div>
+
+        <button id="close-settings">設定を閉じる</button>
+    </div>
+
+    <div id="game-area">
+        <div id="message-overlay"></div>
+    </div>
+
+    <div id="action-bar">
+        <button id="btn-choice-1" class="choice-btn"></button>
+        <button id="btn-choice-2" class="choice-btn"></button>
+        <button id="btn-start" class="btn-sm">つぎへ ▶</button>
+        <button id="btn-check" class="btn-sm">こたえ</button>
+    </div>
+
+    <script>
+        const config = {
+            shapes: ['tear'],
+            time: 700,
+            min: 3,
+            max: 8,
+            color: 'normal',
+            size: 'uniform',
+            answer: 'buttons'
+        };
+
+        const state = {
+            layoutItems: [],
+            target: '',
+            count: 0,
+            active: false
+        };
+
+        const EMOJI = {
+            tear: '💧',
+            avocado: '🥑',
+            shrimp: '🍤', // コロッケをエビフライに変更
+            butterfly: '🦋',
+            smile: '🫠',
+            headphones: '🎧',
+            dolphin: '🐬',
+            fox: '🦊',
+            sleeping: '😴',
+            cake: '🍰',
+            snot: '😪',
+            greenheart: '💚',
+            whale: '🐋',
+            wave: '🌊'
+        };
+
+        function getEmojiHTML(type) {
+            const ch = EMOJI[type] || '❓';
+            return `<span class="emoji" aria-hidden="true">${ch}</span>`;
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const t = audioCtx.currentTime;
+            if (type === 'pop') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, t);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                osc.start(t); osc.stop(t + 0.1);
+            } else if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1046.5, t); osc.frequency.setValueAtTime(2093.0, t + 0.1);
+                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                osc.start(t); osc.stop(t + 0.5);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, t); osc.frequency.linearRampToValueAtTime(100, t + 0.3);
+                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+                osc.start(t); osc.stop(t + 0.3);
+            }
+        }
+
+        const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+        async function playSequence() {
+            if (state.active) return;
+            state.active = true;
+            updateConfig();
+            resetUI();
+            clearAllShapes();
+
+            const types = config.shapes.length ? config.shapes : ['tear'];
+            let minC = parseInt(config.min);
+            let maxC = parseInt(config.max);
+            if (minC > maxC) [minC, maxC] = [maxC, minC];
+            const num = Math.floor(Math.random() * (maxC - minC + 1)) + minC;
+
+            let tempItems = [];
+            for (let i = 0; i < num; i++) {
+                tempItems.push(types[Math.floor(Math.random() * types.length)]);
+            }
+            const existing = [...new Set(tempItems)];
+            state.target = existing[Math.floor(Math.random() * existing.length)];
+            state.count = tempItems.filter(x => x === state.target).length;
+
+            generateLayout(tempItems);
+
+            const msgHtml = `${getEmojiHTML(state.target)} は いくつ？`;
+            document.getElementById('message-overlay').innerHTML = msgHtml;
+            await wait(1000);
+            document.getElementById('message-overlay').innerHTML = '';
+            await wait(300);
+
+            renderItems(false);
+            playSound('pop');
+            await wait(config.time);
+            renderItems(true);
+
+            document.getElementById('message-overlay').innerHTML = msgHtml;
+            if (config.answer === 'buttons') {
+                let wrong = state.count + (Math.random() > 0.5 ? 1 : -1);
+                if (wrong < 1) wrong = state.count + 2;
+                if (wrong === state.count) wrong = state.count + 1;
+                const isLeftCorrect = Math.random() > 0.5;
+                const btn1 = document.getElementById('btn-choice-1');
+                const btn2 = document.getElementById('btn-choice-2');
+                btn1.innerText = isLeftCorrect ? state.count : wrong;
+                btn1.onclick = () => checkAnswer(parseInt(btn1.innerText));
+                btn2.innerText = isLeftCorrect ? wrong : state.count;
+                btn2.onclick = () => checkAnswer(parseInt(btn2.innerText));
+                btn1.style.display = 'block'; btn2.style.display = 'block';
+            } else {
+                document.getElementById('btn-check').style.display = 'block';
+            }
+            state.active = false;
+        }
+
+        function generateLayout(itemTypes) {
+            const area = document.getElementById('game-area');
+            const w = area.clientWidth; const h = area.clientHeight;
+            const basePx = Math.min(Math.max(Math.sqrt((w * h) / (itemTypes.length * 3)), 70), 220);
+            state.layoutItems = [];
+            const placed = [];
+            itemTypes.forEach(type => {
+                const px = config.size === 'random' ? basePx * (0.75 + Math.random() * 0.55) : basePx;
+                let x, y, overlap, tries = 0;
+                do {
+                    overlap = false;
+                    x = Math.random() * (w - px) + px / 2;
+                    y = Math.random() * (h - px) + px / 2;
+                    for (let p of placed) {
+                        const dist = Math.sqrt((x - p.x) ** 2 + (y - p.y) ** 2);
+                        if (dist < (px + p.px) / 2 * 1.05) { overlap = true; break; }
+                    }
+                } while (overlap && tries++ < 150);
+                placed.push({ x, y, px });
+                const rot = (config.color === 'rotate') ? Math.floor(Math.random() * 360) : 0;
+                state.layoutItems.push({ type, x, y, px, rot });
+            });
+        }
+
+        function clearAllShapes() {
+            const area = document.getElementById('game-area');
+            area.querySelectorAll('.shape').forEach(e => e.remove());
+        }
+
+        function renderItems(hidden) {
+            clearAllShapes();
+            if (hidden) return;
+            const area = document.getElementById('game-area');
+            state.layoutItems.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'shape';
+                el.style.width = el.style.height = item.px + 'px';
+                el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
+                el.style.transform = `translate(-50%, -50%) rotate(${item.rot || 0}deg)`;
+                el.innerHTML = getEmojiHTML(item.type);
+                const emo = el.querySelector('.emoji');
+                if (emo) emo.style.fontSize = item.px + 'px';
+                area.appendChild(el);
+            });
+        }
+
+        function checkAnswer(val) {
+            if (val === state.count) playSound('correct'); else playSound('wrong');
+            finishGame();
+        }
+
+        document.getElementById('btn-check').onclick = finishGame;
+
+        function finishGame() {
+            renderItems(false);
+            document.getElementById('message-overlay').innerHTML = '';
+            document.getElementById('btn-choice-1').style.display = 'none';
+            document.getElementById('btn-choice-2').style.display = 'none';
+            document.getElementById('btn-check').style.display = 'none';
+            document.getElementById('btn-start').style.display = 'block';
+        }
+
+        function resetUI() {
+            document.getElementById('btn-start').style.display = 'none';
+            document.getElementById('btn-check').style.display = 'none';
+            document.getElementById('message-overlay').innerHTML = '';
+        }
+
+        function updateConfig() {
+            const checked = document.querySelectorAll('.shape-check:checked');
+            if (checked.length > 0) config.shapes = Array.from(checked).map(c => c.value);
+            config.min = document.getElementById('min-count').value;
+            config.max = document.getElementById('max-count').value;
+            config.time = parseInt(document.getElementById('display-time').value);
+            config.color = document.getElementById('color-rule').value;
+            config.size = document.getElementById('size-rule').value;
+            config.answer = document.getElementById('answer-mode').value;
+        }
+
+        const modal = document.getElementById('settings-modal');
+        const overlay = document.getElementById('modal-overlay');
+        document.getElementById('settings-trigger').onclick = () => { modal.style.display = 'block'; overlay.style.display = 'block'; };
+        const closeFunc = () => { modal.style.display = 'none'; overlay.style.display = 'none'; updateConfig(); };
+        document.getElementById('close-settings').onclick = closeFunc;
+        overlay.onclick = closeFunc;
+        document.getElementById('btn-start').onclick = playSequence;
+        updateConfig();
+    </script>
+</body>
+</html>
