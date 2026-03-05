@@ -10,61 +10,37 @@
             --text-color: #006064;
             --btn-primary: #4CAF50;
             --btn-secondary: #2196F3;
-            --btn-random: #00B0FF; /* ランダム用：鮮やかな水色 */
+            --btn-random: #00B0FF;
             --choice-bg: #03A9F4;
         }
-
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            user-select: none;
-            -webkit-user-select: none;
+            overflow: hidden; height: 100vh;
+            display: flex; flex-direction: column;
+            user-select: none; -webkit-user-select: none;
         }
-
         #game-area {
-            flex: 1;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
+            flex: 1; position: relative;
+            display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 100%;
         }
-
         #message-overlay {
-            font-size: 5rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            z-index: 20;
-            pointer-events: none;
+            font-size: 5rem; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            z-index: 20; pointer-events: none;
             text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
-            width: 100%;
-            text-align: center;
-            height: 100%;
+            width: 100%; text-align: center; height: 100%;
         }
-
         #message-overlay .emoji {
-            font-size: 7rem;
-            line-height: 1;
+            font-size: 7rem; line-height: 1;
             filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
         }
-
         .shape {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: absolute; transform: translate(-50%, -50%);
+            display: flex; justify-content: center; align-items: center;
             pointer-events: none;
         }
         .shape .emoji {
@@ -72,181 +48,81 @@
             filter: drop-shadow(3px 3px 2px rgba(0,0,0,0.15));
             display: block;
         }
-
         #action-bar {
-            height: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            background: rgba(255,255,255,0.4);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            position: relative;
-            z-index: 30;
+            height: 100px; display: flex; justify-content: center; align-items: center; gap: 30px;
+            background: rgba(255,255,255,0.4); border-top: 1px solid rgba(0,0,0,0.05);
+            position: relative; z-index: 30;
         }
-
         .btn-sm {
-            padding: 10px 24px;
-            font-size: 1.3rem;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
+            padding: 10px 24px; font-size: 1.3rem; border-radius: 10px;
+            border: none; cursor: pointer; color: white; font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s;
         }
         .btn-sm:active { transform: translateY(2px); }
         #btn-start { background: var(--btn-primary); }
         #btn-check { background: var(--btn-secondary); display: none; }
-
         .choice-btn {
-            padding: 10px 50px;
-            font-size: 3.5rem;
-            background: var(--choice-bg);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            margin: 0 15px;
-            cursor: pointer;
-            display: none;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-            transition: transform 0.1s;
+            padding: 10px 50px; font-size: 3.5rem; background: var(--choice-bg);
+            color: white; border: none; border-radius: 20px; margin: 0 15px;
+            cursor: pointer; display: none; box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
         }
-
         #settings-trigger {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            font-size: 2.5rem;
-            cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-            z-index: 100;
-            background: none;
-            border: none;
+            position: absolute; bottom: 20px; left: 20px; font-size: 2.5rem;
+            cursor: pointer; opacity: 0.6; transition: opacity 0.3s;
+            z-index: 100; background: none; border: none;
         }
-
         #settings-modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            z-index: 200;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            color: #333;
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: white; padding: 30px;
+            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 200; width: 90%; max-width: 600px; max-height: 90vh;
+            overflow-y: auto; color: #333;
         }
-
         #settings-modal h2 {
-            margin-top: 0;
-            color: var(--text-color);
-            text-align: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
+            margin-top: 0; color: var(--text-color); text-align: center;
+            border-bottom: 2px solid #eee; padding-bottom: 10px;
         }
-
-        .setting-row {
-            margin-bottom: 20px;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 15px;
-        }
-
+        .setting-row { margin-bottom: 20px; border-bottom: 1px dashed #eee; padding-bottom: 15px; }
         .setting-row label.main-label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-            color: #555;
+            display: block; font-weight: bold; margin-bottom: 8px; font-size: 1.1rem; color: #555;
         }
-
         .setting-row select, .setting-row input[type="number"] {
-            padding: 10px;
-            font-size: 1.2rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            background: #fff;
+            padding: 10px; font-size: 1.2rem; border: 2px solid #ddd; border-radius: 8px; background: #fff;
         }
-
         .random-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            background: #f0f4f8;
-            padding: 10px;
-            border-radius: 12px;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+            background: #f0f4f8; padding: 10px; border-radius: 12px;
         }
         #btn-random-pick {
-            background: var(--btn-random); /* 水色に変更 */
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1.1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: var(--btn-random); color: white; border: none;
+            padding: 8px 18px; border-radius: 8px; font-weight: bold;
+            cursor: pointer; font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         #btn-random-pick:active { transform: translateY(1px); box-shadow: none; }
-
-        .number-input-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.2rem;
-        }
+        .number-input-group { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; }
         .number-input-group input { width: 80px; text-align: center; }
-
         .check-group { display: flex; gap: 20px; flex-wrap: wrap; }
         .check-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            background: #f5f5f5;
-            padding: 5px 15px;
-            border-radius: 20px;
+            display: flex; align-items: center; gap: 8px; font-size: 1.2rem;
+            cursor: pointer; background: #f5f5f5; padding: 5px 15px; border-radius: 20px;
         }
         .check-group input[type="checkbox"] { transform: scale(1.3); }
-
         #close-settings {
-            width: 100%;
-            padding: 15px;
-            background: var(--btn-primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
+            width: 100%; padding: 15px; background: var(--btn-primary); color: white;
+            border: none; border-radius: 10px; font-size: 1.3rem; font-weight: bold;
+            cursor: pointer; margin-top: 10px;
         }
-
         #modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 150;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 150;
         }
     </style>
 </head>
 <body>
-
     <button id="settings-trigger">⚙️</button>
-
     <div id="modal-overlay"></div>
     <div id="settings-modal">
         <h2>せってい</h2>
-
         <div class="setting-row">
             <label class="main-label">表示する絵</label>
             <div class="random-controls">
@@ -255,7 +131,7 @@
                 <button id="btn-random-pick">ランダムに選ぶ</button>
             </div>
             <div class="check-group">
-                <label><input type="checkbox" class="shape-check" value="tear" checked><span class="emoji-mini">💧</span> なみだ</label>
+                <label><input type="checkbox" class="shape-check" value="tear"><span class="emoji-mini">💧</span> なみだ</label>
                 <label><input type="checkbox" class="shape-check" value="avocado"><span class="emoji-mini">🥑</span> アボカド</label>
                 <label><input type="checkbox" class="shape-check" value="shrimp"><span class="emoji-mini">🍤</span> エビフライ</label>
                 <label><input type="checkbox" class="shape-check" value="butterfly"><span class="emoji-mini">🦋</span> ちょうちょ</label>
@@ -271,7 +147,6 @@
                 <label><input type="checkbox" class="shape-check" value="wave"><span class="emoji-mini">🌊</span> なみ</label>
             </div>
         </div>
-
         <div class="setting-row">
             <label class="main-label">個数（最小 〜 最大）</label>
             <div class="number-input-group">
@@ -281,7 +156,6 @@
                 <span>個</span>
             </div>
         </div>
-
         <div class="setting-row">
             <label class="main-label">表示時間</label>
             <select id="display-time" style="width:100%">
@@ -291,7 +165,6 @@
                 <option value="2500">2.5秒 (じっくり)</option>
             </select>
         </div>
-
         <div class="setting-row">
             <label class="main-label">詳細ルール</label>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
@@ -318,7 +191,6 @@
                 </div>
             </div>
         </div>
-
         <button id="close-settings">設定を閉じる</button>
     </div>
 
@@ -335,7 +207,7 @@
 
     <script>
         const config = {
-            shapes: ['tear'],
+            shapes: [],
             time: 700,
             min: 15,
             max: 20,
@@ -363,8 +235,7 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            osc.connect(gain); gain.connect(audioCtx.destination);
             const t = audioCtx.currentTime;
             if (type === 'pop') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(600, t);
@@ -461,8 +332,7 @@
         }
 
         function clearAllShapes() {
-            const area = document.getElementById('game-area');
-            area.querySelectorAll('.shape').forEach(e => e.remove());
+            document.getElementById('game-area').querySelectorAll('.shape').forEach(e => e.remove());
         }
 
         function renderItems(hidden) {
@@ -515,6 +385,15 @@
             config.answer = document.getElementById('answer-mode').value;
         }
 
+        // 起動時にランダムで7つ選択
+        function initRandomSelection() {
+            const checkboxes = Array.from(document.querySelectorAll('.shape-check'));
+            checkboxes.forEach(cb => cb.checked = false);
+            const shuffled = [...checkboxes].sort(() => 0.5 - Math.random());
+            for (let i = 0; i < 7; i++) { shuffled[i].checked = true; }
+            updateConfig();
+        }
+
         document.getElementById('btn-random-pick').onclick = () => {
             const checkboxes = Array.from(document.querySelectorAll('.shape-check'));
             const countInput = document.getElementById('random-type-count');
@@ -534,7 +413,8 @@
         document.getElementById('close-settings').onclick = closeFunc;
         overlay.onclick = closeFunc;
         document.getElementById('btn-start').onclick = playSequence;
-        updateConfig();
+
+        initRandomSelection();
     </script>
 </body>
 </html>
