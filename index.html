@@ -1,420 +1,1055 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一瞬チャレンジ！いま何個？Pro</title>
-    <style>
-        :root {
-            --bg-color: #E0F7FA;
-            --text-color: #006064;
-            --btn-primary: #4CAF50;
-            --btn-secondary: #2196F3;
-            --btn-random: #00B0FF;
-            --choice-bg: #03A9F4;
-        }
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            overflow: hidden; height: 100vh;
-            display: flex; flex-direction: column;
-            user-select: none; -webkit-user-select: none;
-        }
-        #game-area {
-            flex: 1; position: relative;
-            display: flex; justify-content: center; align-items: center;
-            width: 100%; height: 100%;
-        }
-        #message-overlay {
-            font-size: 5rem; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; gap: 20px;
-            z-index: 20; pointer-events: none;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
-            width: 100%; text-align: center; height: 100%;
-        }
-        #message-overlay .emoji {
-            font-size: 7rem; line-height: 1;
-            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
-        }
-        .shape {
-            position: absolute; transform: translate(-50%, -50%);
-            display: flex; justify-content: center; align-items: center;
-            pointer-events: none;
-        }
-        .shape .emoji {
-            line-height: 1;
-            filter: drop-shadow(3px 3px 2px rgba(0,0,0,0.15));
-            display: block;
-        }
-        #action-bar {
-            height: 100px; display: flex; justify-content: center; align-items: center; gap: 30px;
-            background: rgba(255,255,255,0.4); border-top: 1px solid rgba(0,0,0,0.05);
-            position: relative; z-index: 30;
-        }
-        .btn-sm {
-            padding: 10px 24px; font-size: 1.3rem; border-radius: 10px;
-            border: none; cursor: pointer; color: white; font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s;
-        }
-        .btn-sm:active { transform: translateY(2px); }
-        #btn-start { background: var(--btn-primary); }
-        #btn-check { background: var(--btn-secondary); display: none; }
-        .choice-btn {
-            padding: 10px 50px; font-size: 3.5rem; background: var(--choice-bg);
-            color: white; border: none; border-radius: 20px; margin: 0 15px;
-            cursor: pointer; display: none; box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
-        }
-        #settings-trigger {
-            position: absolute; bottom: 20px; left: 20px; font-size: 2.5rem;
-            cursor: pointer; opacity: 0.6; transition: opacity 0.3s;
-            z-index: 100; background: none; border: none;
-        }
-        #settings-modal {
-            display: none; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); background: white; padding: 30px;
-            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            z-index: 200; width: 90%; max-width: 600px; max-height: 90vh;
-            overflow-y: auto; color: #333;
-        }
-        #settings-modal h2 {
-            margin-top: 0; color: var(--text-color); text-align: center;
-            border-bottom: 2px solid #eee; padding-bottom: 10px;
-        }
-        .setting-row { margin-bottom: 20px; border-bottom: 1px dashed #eee; padding-bottom: 15px; }
-        .setting-row label.main-label {
-            display: block; font-weight: bold; margin-bottom: 8px; font-size: 1.1rem; color: #555;
-        }
-        .setting-row select, .setting-row input[type="number"] {
-            padding: 10px; font-size: 1.2rem; border: 2px solid #ddd; border-radius: 8px; background: #fff;
-        }
-        .random-controls {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
-            background: #f0f4f8; padding: 10px; border-radius: 12px;
-        }
-        #btn-random-pick {
-            background: var(--btn-random); color: white; border: none;
-            padding: 8px 18px; border-radius: 8px; font-weight: bold;
-            cursor: pointer; font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        #btn-random-pick:active { transform: translateY(1px); box-shadow: none; }
-        .number-input-group { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; }
-        .number-input-group input { width: 80px; text-align: center; }
-        .check-group { display: flex; gap: 20px; flex-wrap: wrap; }
-        .check-group label {
-            display: flex; align-items: center; gap: 8px; font-size: 1.2rem;
-            cursor: pointer; background: #f5f5f5; padding: 5px 15px; border-radius: 20px;
-        }
-        .check-group input[type="checkbox"] { transform: scale(1.3); }
-        #close-settings {
-            width: 100%; padding: 15px; background: var(--btn-primary); color: white;
-            border: none; border-radius: 10px; font-size: 1.3rem; font-weight: bold;
-            cursor: pointer; margin-top: 10px;
-        }
-        #modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 150;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>一瞬チャレンジ！いま何個？Pro</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap');
+
+    :root {
+        --bg-color: #E0F7FA;
+        --text-color: #006064;
+        --btn-primary: #4CAF50;
+        --btn-secondary: #2196F3;
+        --choice-bg: #03A9F4;
+        --btn-random: #00B0FF;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        touch-action: manipulation;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    button {
+        font-family: inherit;
+        touch-action: manipulation;
+    }
+
+    ruby rt {
+        font-size: 0.5em;
+        color: inherit;
+        opacity: 0.85;
+    }
+
+    /* ============ 画面切り替え ============ */
+    .screen {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    .screen.active { display: flex; }
+
+    /* ============ テーマ選択画面 ============ */
+    #theme-screen {
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        gap: 20px;
+    }
+    #theme-screen h1 {
+        font-size: clamp(1.4rem, 4vw, 2.2rem);
+        margin: 0 0 10px 0;
+        text-align: center;
+    }
+    #theme-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 24px;
+        width: 100%;
+        max-width: 900px;
+    }
+    .theme-card {
+        background: #fff;
+        border: none;
+        border-radius: 24px;
+        padding: 24px 20px;
+        width: 240px;
+        min-height: 190px;
+        max-width: 42vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        cursor: pointer;
+        box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+        transition: transform 0.1s;
+    }
+    .theme-card:active {
+        transform: translateY(6px);
+        box-shadow: 0 0 0 rgba(0,0,0,0.1);
+    }
+    .theme-preview {
+        font-size: 2.6rem;
+        line-height: 1.3;
+        letter-spacing: 4px;
+    }
+    .theme-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        line-height: 1.4;
+        text-align: center;
+    }
+
+    /* ============ ゲーム画面 ============ */
+    #game-screen { position: relative; }
+
+    #game-area {
+        flex: 1;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 0;
+    }
+
+    #message-overlay {
+        font-size: clamp(2.2rem, 6vw, 5rem);
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        z-index: 20;
+        pointer-events: none;
+        text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+        width: 100%;
+        text-align: center;
+        height: 100%;
+        padding: 0 16px;
+    }
+    #message-overlay .emoji {
+        font-size: clamp(2.8rem, 9vw, 7rem);
+        line-height: 1;
+        filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+    }
+
+    .shape {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+    }
+    .shape .emoji {
+        line-height: 1;
+        filter: drop-shadow(3px 3px 2px rgba(0,0,0,0.15));
+        display: block;
+    }
+
+    #action-bar {
+        min-height: 90px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 8px;
+        background: rgba(255,255,255,0.4);
+        border-top: 1px solid rgba(0,0,0,0.05);
+        position: relative;
+        z-index: 30;
+    }
+
+    .btn-sm {
+        padding: 12px 24px;
+        min-height: 44px;
+        font-size: 1.2rem;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: transform 0.1s;
+    }
+    .btn-sm:active { transform: translateY(2px); }
+    #btn-start { background: var(--btn-primary); }
+    #btn-check { background: var(--btn-secondary); display: none; }
+
+    .choice-btn {
+        padding: 10px 40px;
+        min-height: 44px;
+        font-size: clamp(1.8rem, 5vw, 3.5rem);
+        background: var(--choice-bg);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        display: none;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        transition: transform 0.1s;
+    }
+    .choice-btn:active {
+        transform: translateY(4px);
+        box-shadow: none;
+    }
+
+    /* 正誤フィードバック（文字でも表示） */
+    #feedback-text {
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: clamp(1.4rem, 4vw, 2.2rem);
+        font-weight: bold;
+        padding: 8px 28px;
+        border-radius: 30px;
+        z-index: 40;
+        display: none;
+        white-space: nowrap;
+    }
+    #feedback-text.correct { background: #C8E6C9; color: #2E7D32; }
+    #feedback-text.wrong { background: #FFF3CD; color: #8A6D00; }
+
+    #settings-trigger {
+        position: absolute;
+        bottom: 14px;
+        left: 14px;
+        width: 48px;
+        height: 48px;
+        font-size: 1.7rem;
+        cursor: pointer;
+        opacity: 0.65;
+        z-index: 100;
+        background: rgba(255,255,255,0.7);
+        border: none;
+        border-radius: 50%;
+    }
+
+    #theme-trigger {
+        position: absolute;
+        bottom: 14px;
+        left: 70px;
+        min-height: 44px;
+        padding: 0 16px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        opacity: 0.75;
+        z-index: 100;
+        background: rgba(255,255,255,0.85);
+        color: var(--text-color);
+        border: none;
+        border-radius: 22px;
+        font-family: inherit;
+    }
+
+    #help-trigger {
+        position: absolute;
+        bottom: 14px;
+        right: 14px;
+        width: 48px;
+        height: 48px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        cursor: pointer;
+        opacity: 0.65;
+        z-index: 100;
+        background: rgba(255,255,255,0.7);
+        color: var(--text-color);
+        border: none;
+        border-radius: 50%;
+    }
+
+    /* ============ モーダル共通 ============ */
+    #modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+    .modal-box {
+        display: none;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 26px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        z-index: 200;
+        width: 92%;
+        max-width: 640px;
+        max-height: 88vh;
+        overflow-y: auto;
+        color: #333;
+    }
+
+    .modal-box h2 {
+        margin-top: 0;
+        color: var(--text-color);
+        text-align: center;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        font-size: 1.4rem;
+    }
+
+    .setting-row {
+        margin-bottom: 18px;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 14px;
+    }
+    .setting-row:last-child { border-bottom: none; }
+
+    .setting-row label.main-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+        color: #555;
+    }
+
+    .setting-row select {
+        padding: 10px;
+        font-size: 1.1rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: #fff;
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* 数字 + △▽ + 直接入力 */
+    .num-stepper {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f5f5f5;
+        border-radius: 10px;
+        padding: 4px;
+    }
+    .num-stepper button {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border: none;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--text-color);
+        cursor: pointer;
+        box-shadow: 0 2px 3px rgba(0,0,0,0.12);
+    }
+    .num-stepper button:active { transform: translateY(1px); }
+    .num-stepper input {
+        width: 56px;
+        height: 40px;
+        text-align: center;
+        font-size: 1.15rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+    }
+    .num-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        font-size: 1.05rem;
+    }
+
+    .random-select-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f0f8ff;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+    #btn-random-select {
+        background-color: var(--btn-random);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        min-height: 44px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 3px 0 #0089c7;
+    }
+    #btn-random-select:active { transform: translateY(3px); box-shadow: none; }
+
+    .check-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .check-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        background: #f5f5f5;
+        padding: 8px 15px;
+        min-height: 44px;
+        border-radius: 20px;
+    }
+    .check-group input[type="checkbox"] { transform: scale(1.3); }
+    .check-group .emoji-mini { font-size: 1.3rem; line-height: 1; }
+
+    #close-settings, #close-help {
+        width: 100%;
+        padding: 14px;
+        min-height: 44px;
+        background: #607D8B;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+
+    /* ============ ヘルプモーダル ============ */
+    #help-modal p {
+        font-size: 1.1rem;
+        line-height: 1.9;
+    }
+    #help-modal .help-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+    #help-modal .help-num {
+        background: var(--btn-primary);
+        color: white;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    #help-checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.05rem;
+        margin: 16px 0;
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 10px;
+    }
+    #help-checkbox-row input { transform: scale(1.4); }
+
+    /* 横向き時の余白調整 */
+    @media (max-height: 480px) {
+        #action-bar { min-height: 70px; }
+        .btn-sm { padding: 8px 16px; font-size: 1rem; }
+    }
+</style>
 </head>
 <body>
-    <button id="settings-trigger">⚙️</button>
-    <div id="modal-overlay"></div>
-    <div id="settings-modal">
-        <h2>せってい</h2>
-        <div class="setting-row">
-            <label class="main-label">表示する絵</label>
-            <div class="random-controls">
-                <input type="number" id="random-type-count" value="7" min="1" max="14">
-                <span>種類を</span>
-                <button id="btn-random-pick">ランダムに選ぶ</button>
-            </div>
-            <div class="check-group">
-                <label><input type="checkbox" class="shape-check" value="tear"><span class="emoji-mini">💧</span> なみだ</label>
-                <label><input type="checkbox" class="shape-check" value="avocado"><span class="emoji-mini">🥑</span> アボカド</label>
-                <label><input type="checkbox" class="shape-check" value="shrimp"><span class="emoji-mini">🍤</span> エビフライ</label>
-                <label><input type="checkbox" class="shape-check" value="butterfly"><span class="emoji-mini">🦋</span> ちょうちょ</label>
-                <label><input type="checkbox" class="shape-check" value="smile"><span class="emoji-mini">🫠</span> スマイル</label>
-                <label><input type="checkbox" class="shape-check" value="headphones"><span class="emoji-mini">🎧</span> ヘッドホン</label>
-                <label><input type="checkbox" class="shape-check" value="dolphin"><span class="emoji-mini">🐬</span> イルカ</label>
-                <label><input type="checkbox" class="shape-check" value="fox"><span class="emoji-mini">🦊</span> キツネ</label>
-                <label><input type="checkbox" class="shape-check" value="sleeping"><span class="emoji-mini">😴</span> 寝てるやつ</label>
-                <label><input type="checkbox" class="shape-check" value="cake"><span class="emoji-mini">🍰</span> ケーキ</label>
-                <label><input type="checkbox" class="shape-check" value="snot"><span class="emoji-mini">😪</span> ハナミズ</label>
-                <label><input type="checkbox" class="shape-check" value="greenheart"><span class="emoji-mini">💚</span> みどりハート</label>
-                <label><input type="checkbox" class="shape-check" value="whale"><span class="emoji-mini">🐋</span> クジラ</label>
-                <label><input type="checkbox" class="shape-check" value="wave"><span class="emoji-mini">🌊</span> なみ</label>
-            </div>
-        </div>
-        <div class="setting-row">
-            <label class="main-label">個数（最小 〜 最大）</label>
-            <div class="number-input-group">
-                <input type="number" id="min-count" value="15" min="1" max="40">
-                <span>個 〜 </span>
-                <input type="number" id="max-count" value="20" min="1" max="40">
-                <span>個</span>
-            </div>
-        </div>
-        <div class="setting-row">
-            <label class="main-label">表示時間</label>
-            <select id="display-time" style="width:100%">
-                <option value="300">0.3秒 (超速い)</option>
-                <option value="700" selected>0.7秒 (ふつう)</option>
-                <option value="1500">1.5秒 (ゆっくり)</option>
-                <option value="2500">2.5秒 (じっくり)</option>
-            </select>
-        </div>
-        <div class="setting-row">
-            <label class="main-label">詳細ルール</label>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div style="grid-column: span 2;">
-                    <div style="font-size:0.9rem; margin-bottom:4px;">表示のルール</div>
-                    <select id="color-rule" style="width:100%">
-                        <option value="normal">そのまま</option>
-                        <option value="rotate" selected>回転あり</option>
-                    </select>
-                </div>
-                <div>
-                    <div style="font-size:0.9rem; margin-bottom:4px;">大きさ</div>
-                    <select id="size-rule" style="width:100%">
-                        <option value="uniform">同じ</option>
-                        <option value="random" selected>バラバラ</option>
-                    </select>
-                </div>
-                <div>
-                    <div style="font-size:0.9rem; margin-bottom:4px;">回答方法</div>
-                    <select id="answer-mode" style="width:100%">
-                        <option value="buttons">2択ボタン</option>
-                        <option value="none" selected>ボタンなし</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <button id="close-settings">設定を閉じる</button>
-    </div>
 
+<div id="modal-overlay"></div>
+
+<!-- ============ テーマ選択画面 ============ -->
+<div id="theme-screen" class="screen active">
+    <h1><ruby>一瞬<rt>いっしゅん</rt></ruby>チャレンジ！いまの<ruby>何個<rt>なんこ</rt></ruby>？</h1>
+    <div id="theme-list">
+        <button class="theme-card" data-theme="food">
+            <span class="theme-preview">🍇🍔🚗</span>
+            <span class="theme-name"><ruby>食<rt>た</rt></ruby>べもの<br>のりもの</span>
+        </button>
+        <button class="theme-card" data-theme="nature">
+            <span class="theme-preview">🦋🐬🥑</span>
+            <span class="theme-name"><ruby>生<rt>い</rt></ruby>きもの<br>しぜん</span>
+        </button>
+        <button class="theme-card" data-theme="face">
+            <span class="theme-preview">😀😎🥳</span>
+            <span class="theme-name"><ruby>顔<rt>かお</rt></ruby>ばっかり</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============ ゲーム画面 ============ -->
+<div id="game-screen" class="screen">
     <div id="game-area">
+        <div id="feedback-text"></div>
         <div id="message-overlay"></div>
     </div>
 
     <div id="action-bar">
         <button id="btn-choice-1" class="choice-btn"></button>
         <button id="btn-choice-2" class="choice-btn"></button>
-        <button id="btn-start" class="btn-sm">つぎへ ▶</button>
+        <button id="btn-start" class="btn-sm"><ruby>次<rt>つぎ</rt></ruby>へ ▶</button>
         <button id="btn-check" class="btn-sm">こたえ</button>
     </div>
 
-    <script>
-        const config = {
-            shapes: [],
-            time: 700,
-            min: 15,
-            max: 20,
-            color: 'rotate',
-            size: 'random',
-            answer: 'none'
-        };
+    <button id="settings-trigger" title="せってい">⚙️</button>
+    <button id="theme-trigger" title="テーマ選びにもどる">◀ もどる</button>
+    <button id="help-trigger" title="あそびかた">？</button>
+</div>
 
-        const state = { layoutItems: [], target: '', count: 0, active: false };
+<!-- ============ 設定モーダル ============ -->
+<div id="settings-modal" class="modal-box">
+    <h2>せってい</h2>
 
-        const EMOJI = {
-            tear: '💧', avocado: '🥑', shrimp: '🍤', butterfly: '🦋',
-            smile: '🫠', headphones: '🎧', dolphin: '🐬', fox: '🦊',
-            sleeping: '😴', cake: '🍰', snot: '😪', greenheart: '💚',
-            whale: '🐋', wave: '🌊'
-        };
+    <div class="setting-row">
+        <label class="main-label"><ruby>表示<rt>ひょうじ</rt></ruby>する<ruby>絵<rt>え</rt></ruby></label>
 
-        function getEmojiHTML(type) {
-            const ch = EMOJI[type] || '❓';
-            return `<span class="emoji" aria-hidden="true">${ch}</span>`;
+        <div class="random-select-group">
+            <div class="num-stepper">
+                <button type="button" data-target="random-count" data-step="-1">▽</button>
+                <input type="number" id="random-count" value="7" min="1" max="16" readonly>
+                <button type="button" data-target="random-count" data-step="1">△</button>
+            </div>
+            <span><ruby>種類<rt>しゅるい</rt></ruby>をえらぶ</span>
+            <button id="btn-random-select" type="button">ランダムにえらぶ</button>
+        </div>
+
+        <div class="check-group" id="shape-check-container"></div>
+    </div>
+
+    <div class="setting-row">
+        <label class="main-label"><ruby>個数<rt>こすう</rt></ruby>（<ruby>最小<rt>さいしょう</rt></ruby>〜<ruby>最大<rt>さいだい</rt></ruby>）</label>
+        <div class="num-row">
+            <div class="num-stepper">
+                <button type="button" data-target="min-count" data-step="-1">▽</button>
+                <input type="number" id="min-count" value="15" min="1" max="40" inputmode="numeric">
+                <button type="button" data-target="min-count" data-step="1">△</button>
+            </div>
+            <span>こ 〜</span>
+            <div class="num-stepper">
+                <button type="button" data-target="max-count" data-step="-1">▽</button>
+                <input type="number" id="max-count" value="20" min="1" max="40" inputmode="numeric">
+                <button type="button" data-target="max-count" data-step="1">△</button>
+            </div>
+            <span>こ</span>
+        </div>
+    </div>
+
+    <div class="setting-row">
+        <label class="main-label"><ruby>表示時間<rt>ひょうじじかん</rt></ruby></label>
+        <select id="display-time">
+            <option value="300">0.3<ruby>秒<rt>びょう</rt></ruby>（とても<ruby>速<rt>はや</rt></ruby>い）</option>
+            <option value="700" selected>0.7<ruby>秒<rt>びょう</rt></ruby>（ふつう）</option>
+            <option value="1500">1.5<ruby>秒<rt>びょう</rt></ruby>（ゆっくり）</option>
+            <option value="2500">2.5<ruby>秒<rt>びょう</rt></ruby>（じっくり）</option>
+        </select>
+    </div>
+
+    <div class="setting-row">
+        <label class="main-label"><ruby>詳細<rt>しょうさい</rt></ruby>ルール</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div>
+                <div style="font-size:0.9rem; margin-bottom:4px;"><ruby>表示<rt>ひょうじ</rt></ruby>のルール</div>
+                <select id="color-rule">
+                    <option value="normal" selected>そのまま</option>
+                    <option value="rotate"><ruby>回転<rt>かいてん</rt></ruby>あり</option>
+                </select>
+            </div>
+            <div>
+                <div style="font-size:0.9rem; margin-bottom:4px;"><ruby>大<rt>おお</rt></ruby>きさ</div>
+                <select id="size-rule">
+                    <option value="uniform"><ruby>同<rt>おな</rt></ruby>じ<ruby>大<rt>おお</rt></ruby>きさ</option>
+                    <option value="random" selected><ruby>大小<rt>だいしょう</rt></ruby>バラバラ</option>
+                </select>
+            </div>
+            <div>
+                <div style="font-size:0.9rem; margin-bottom:4px;"><ruby>回答方法<rt>かいとうほうほう</rt></ruby></div>
+                <select id="answer-mode">
+                    <option value="buttons">2<ruby>択<rt>たく</rt></ruby>ボタン</option>
+                    <option value="none" selected>ボタンなし</option>
+                </select>
+            </div>
+            <div>
+                <div style="font-size:0.9rem; margin-bottom:4px;"><ruby>音<rt>おと</rt></ruby></div>
+                <select id="sound-toggle">
+                    <option value="on" selected>ON</option>
+                    <option value="off">OFF</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <button id="close-settings">せっていを<ruby>閉<rt>と</rt></ruby>じる</button>
+</div>
+
+<!-- ============ ヘルプモーダル（あそびかた） ============ -->
+<div id="help-modal" class="modal-box">
+    <h2>あそびかた</h2>
+    <div class="help-step">
+        <span class="help-num">1</span>
+        <p style="margin:0;">「<ruby>次<rt>つぎ</rt></ruby>へ」を<ruby>押<rt>お</rt></ruby>すと、まず〇〇は<ruby>何個<rt>なんこ</rt></ruby>？と<ruby>聞<rt>き</rt></ruby>かれるよ。</p>
+    </div>
+    <div class="help-step">
+        <span class="help-num">2</span>
+        <p style="margin:0;">その<ruby>後<rt>あと</rt></ruby>、たくさんの<ruby>絵<rt>え</rt></ruby>が<ruby>一瞬<rt>いっしゅん</rt></ruby>だけ<ruby>画面<rt>がめん</rt></ruby>に<ruby>出<rt>で</rt></ruby>るよ。</p>
+    </div>
+    <div class="help-step">
+        <span class="help-num">3</span>
+        <p style="margin:0;">もう<ruby>一度<rt>いちど</rt></ruby><ruby>質問<rt>しつもん</rt></ruby>が<ruby>出<rt>で</rt></ruby>るので、<ruby>個数<rt>こすう</rt></ruby>をこたえてね（ボタンか、<ruby>先生<rt>せんせい</rt></ruby>に<ruby>言葉<rt>ことば</rt></ruby>で）。</p>
+    </div>
+    <div class="help-step">
+        <span class="help-num">4</span>
+        <p style="margin:0;"><ruby>画面<rt>がめん</rt></ruby>の<ruby>左下<rt>ひだりした</rt></ruby>の⚙️から、<ruby>絵<rt>え</rt></ruby>の<ruby>種類<rt>しゅるい</rt></ruby>や<ruby>個数<rt>こすう</rt></ruby>、スピードを<ruby>先生<rt>せんせい</rt></ruby>が<ruby>調整<rt>ちょうせい</rt></ruby>できるよ。</p>
+    </div>
+    <div class="help-step">
+        <span class="help-num">5</span>
+        <p style="margin:0;"><ruby>音<rt>おと</rt></ruby>が<ruby>出<rt>で</rt></ruby>ます。せっていの中でOFFにもできるよ。</p>
+    </div>
+    <div id="help-checkbox-row">
+        <input type="checkbox" id="dont-show-again">
+        <label for="dont-show-again"><ruby>次回<rt>じかい</rt></ruby>からこの<ruby>説明<rt>せつめい</rt></ruby>を<ruby>表示<rt>ひょうじ</rt></ruby>しない</label>
+    </div>
+    <button id="close-help">とじる</button>
+</div>
+
+<script>
+    /* ============ テーマ定義 ============ */
+    const THEMES = {
+        food: {
+            emoji: {
+                sunflower: '🌻', grapes: '🍇', car: '🚗', burger: '🍔',
+                apple: '🍎', banana: '🍌', strawberry: '🍓', watermelon: '🍉',
+                donut: '🍩', cake: '🍰', soccer: '⚽',
+                dog: '🐶', cat: '🐱', fish: '🐟',
+                bicycle: '🚲', airplane: '✈️'
+            },
+            labels: {
+                sunflower: 'ひまわり', grapes: 'ぶどう', car: 'くるま', burger: 'ハンバーガー',
+                apple: 'りんご', banana: 'バナナ', strawberry: 'いちご', watermelon: 'すいか',
+                donut: 'ドーナツ', cake: 'ケーキ', soccer: 'ボール',
+                dog: 'いぬ', cat: 'ねこ', fish: 'さかな',
+                bicycle: 'じてんしゃ', airplane: 'ひこうき'
+            },
+            initial: ['sunflower', 'grapes', 'car', 'burger', 'apple', 'banana', 'strawberry']
+        },
+        nature: {
+            emoji: {
+                tear: '💧', avocado: '🥑', shrimp: '🍤', butterfly: '🦋',
+                smile: '🫠', headphones: '🎧', dolphin: '🐬', fox: '🦊',
+                sleeping: '😴', cake: '🍰', snot: '😪', greenheart: '💚',
+                whale: '🐋', wave: '🌊'
+            },
+            labels: {
+                tear: 'なみだ', avocado: 'アボカド', shrimp: 'エビフライ', butterfly: 'ちょうちょ',
+                smile: 'スマイル', headphones: 'ヘッドホン', dolphin: 'イルカ', fox: 'キツネ',
+                sleeping: 'ねてるやつ', cake: 'ケーキ', snot: 'ハナミズ', greenheart: 'みどりハート',
+                whale: 'クジラ', wave: 'なみ'
+            },
+            initial: null // ランダム7つ
+        },
+        face: {
+            emoji: {
+                smile: '😀', laugh: '😂', wink: '😉', heart: '😍',
+                sunglasses: '😎', thinking: '🤔', sleeping: '😴', crying: '😭',
+                angry: '😡', surprised: '😲', party: '🥳',
+                cold: '🥶', hot: '🥵', mask: '😷',
+                angel: '😇', devil: '😈'
+            },
+            labels: {
+                smile: 'えがお', laugh: 'ばくしょう', wink: 'ウインク', heart: 'ハートめ',
+                sunglasses: 'サングラス', thinking: 'かんがえる', sleeping: 'ねがお', crying: 'なきがお',
+                angry: 'おこり', surprised: 'びっくり', party: 'パーティ',
+                cold: 'さむい', hot: 'あつい', mask: 'マスク',
+                angel: 'てんし', devil: 'あくま'
+            },
+            initial: null
+        }
+    };
+
+    let currentTheme = 'food';
+
+    const config = {
+        shapes: [],
+        time: 700,
+        min: 15,
+        max: 20,
+        color: 'normal',
+        size: 'random',
+        answer: 'none',
+        sound: 'on'
+    };
+
+    const state = {
+        layoutItems: [],
+        target: '',
+        count: 0,
+        active: false
+    };
+
+    /* ============ localStorage（プレビューでは動作しません） ============ */
+    function getHelpDismissed() {
+        try { return localStorage.getItem('imananko_help_dismissed') === '1'; }
+        catch (e) { return false; }
+    }
+    function setHelpDismissed(val) {
+        try { localStorage.setItem('imananko_help_dismissed', val ? '1' : '0'); }
+        catch (e) { /* プレビュー環境では保存されません */ }
+    }
+
+    function getEmojiHTML(type) {
+        const ch = THEMES[currentTheme].emoji[type] || '❓';
+        return `<span class="emoji" aria-hidden="true">${ch}</span>`;
+    }
+
+    /* ============ Web Audio ============ */
+    let audioCtx = null;
+    function ensureAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    function playSound(type) {
+        if (config.sound !== 'on') return;
+        ensureAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const t = audioCtx.currentTime;
+
+        if (type === 'pop') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, t);
+            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+            osc.start(t); osc.stop(t + 0.1);
+        } else if (type === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1046.5, t);
+            osc.frequency.setValueAtTime(2093.0, t + 0.1);
+            gain.gain.setValueAtTime(0.3, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+            osc.start(t); osc.stop(t + 0.5);
+        } else if (type === 'wrong') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, t);
+            osc.frequency.linearRampToValueAtTime(100, t + 0.3);
+            gain.gain.setValueAtTime(0.3, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+            osc.start(t); osc.stop(t + 0.3);
+        }
+    }
+
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+    /* ============ ゲーム本編 ============ */
+    async function playSequence() {
+        if (state.active) return;
+        state.active = true;
+
+        updateConfig();
+        resetUI();
+        clearAllShapes();
+        document.getElementById('feedback-text').style.display = 'none';
+
+        const types = config.shapes.length ? config.shapes : Object.keys(THEMES[currentTheme].emoji).slice(0, 1);
+
+        let minC = parseInt(config.min);
+        let maxC = parseInt(config.max);
+        if (minC > maxC) [minC, maxC] = [maxC, minC];
+        const num = Math.floor(Math.random() * (maxC - minC + 1)) + minC;
+
+        let tempItems = [];
+        for (let i = 0; i < num; i++) {
+            tempItems.push(types[Math.floor(Math.random() * types.length)]);
         }
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            const t = audioCtx.currentTime;
-            if (type === 'pop') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(600, t);
-                gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-                osc.start(t); osc.stop(t + 0.1);
-            } else if (type === 'correct') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(1046.5, t); osc.frequency.setValueAtTime(2093.0, t + 0.1);
-                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
-                osc.start(t); osc.stop(t + 0.5);
-            } else if (type === 'wrong') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, t); osc.frequency.linearRampToValueAtTime(100, t + 0.3);
-                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
-                osc.start(t); osc.stop(t + 0.3);
-            }
+        const existing = [...new Set(tempItems)];
+        state.target = existing[Math.floor(Math.random() * existing.length)];
+        state.count = tempItems.filter(x => x === state.target).length;
+
+        generateLayout(tempItems);
+
+        const label = THEMES[currentTheme].labels[state.target] || '';
+        const msgHtml = `${getEmojiHTML(state.target)} は いくつ？`;
+        document.getElementById('message-overlay').innerHTML = msgHtml;
+
+        await wait(1000);
+
+        document.getElementById('message-overlay').innerHTML = '';
+        await wait(300);
+
+        renderItems(false);
+        playSound('pop');
+        await wait(config.time);
+
+        renderItems(true);
+
+        document.getElementById('message-overlay').innerHTML = msgHtml;
+
+        if (config.answer === 'buttons') {
+            let wrong = state.count + (Math.random() > 0.5 ? 1 : -1);
+            if (wrong < 1) wrong = state.count + 2;
+            if (wrong === state.count) wrong = state.count + 1;
+
+            const isLeftCorrect = Math.random() > 0.5;
+            const btn1 = document.getElementById('btn-choice-1');
+            const btn2 = document.getElementById('btn-choice-2');
+
+            btn1.innerText = isLeftCorrect ? state.count : wrong;
+            btn1.onclick = () => checkAnswer(parseInt(btn1.innerText));
+
+            btn2.innerText = isLeftCorrect ? wrong : state.count;
+            btn2.onclick = () => checkAnswer(parseInt(btn2.innerText));
+
+            btn1.style.display = 'inline-block';
+            btn2.style.display = 'inline-block';
+        } else {
+            document.getElementById('btn-check').style.display = 'inline-block';
         }
 
-        const wait = (ms) => new Promise(r => setTimeout(r, ms));
+        state.active = false;
+    }
 
-        async function playSequence() {
-            if (state.active) return;
-            state.active = true;
+    function generateLayout(itemTypes) {
+        const area = document.getElementById('game-area');
+        const w = area.clientWidth;
+        const h = area.clientHeight;
+
+        const basePx = Math.min(Math.max(Math.sqrt((w * h) / (itemTypes.length * 3)), 50), 200);
+
+        state.layoutItems = [];
+        const placed = [];
+
+        itemTypes.forEach(type => {
+            const px = config.size === 'random' ? basePx * (0.7 + Math.random() * 0.6) : basePx;
+            let x, y, overlap, tries = 0;
+
+            do {
+                overlap = false;
+                x = Math.random() * (w - px) + px / 2;
+                y = Math.random() * (h - px) + px / 2;
+                for (let p of placed) {
+                    const dist = Math.sqrt((x - p.x) ** 2 + (y - p.y) ** 2);
+                    if (dist < (px + p.px) / 2 * 1.05) { overlap = true; break; }
+                }
+            } while (overlap && tries++ < 150);
+
+            placed.push({ x, y, px });
+            const rot = (config.color === 'rotate') ? Math.floor(Math.random() * 360) : 0;
+            state.layoutItems.push({ type, x, y, px, rot });
+        });
+    }
+
+    function clearAllShapes() {
+        document.getElementById('game-area').querySelectorAll('.shape').forEach(e => e.remove());
+    }
+
+    function renderItems(hidden) {
+        clearAllShapes();
+        if (hidden) return;
+
+        const area = document.getElementById('game-area');
+        state.layoutItems.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'shape';
+            el.style.width = item.px + 'px';
+            el.style.height = item.px + 'px';
+            el.style.left = item.x + 'px';
+            el.style.top = item.y + 'px';
+            el.style.transform = `translate(-50%, -50%) rotate(${item.rot || 0}deg)`;
+
+            el.innerHTML = getEmojiHTML(item.type);
+            const emo = el.querySelector('.emoji');
+            if (emo) emo.style.fontSize = item.px + 'px';
+
+            area.appendChild(el);
+        });
+    }
+
+    function checkAnswer(val) {
+        const fb = document.getElementById('feedback-text');
+        if (val === state.count) {
+            playSound('correct');
+            fb.textContent = 'せいかい！';
+            fb.className = 'correct';
+        } else {
+            playSound('wrong');
+            fb.textContent = `おしい！ こたえは ${state.count} こだよ`;
+            fb.className = 'wrong';
+        }
+        fb.style.display = 'block';
+        finishGame();
+    }
+
+    document.getElementById('btn-check').onclick = finishGame;
+
+    function finishGame() {
+        renderItems(false);
+        document.getElementById('message-overlay').innerHTML = '';
+        document.getElementById('btn-choice-1').style.display = 'none';
+        document.getElementById('btn-choice-2').style.display = 'none';
+        document.getElementById('btn-check').style.display = 'none';
+        document.getElementById('btn-start').style.display = 'inline-block';
+    }
+
+    function resetUI() {
+        document.getElementById('btn-start').style.display = 'none';
+        document.getElementById('btn-check').style.display = 'none';
+        document.getElementById('message-overlay').innerHTML = '';
+    }
+
+    function updateConfig() {
+        const checked = document.querySelectorAll('.shape-check:checked');
+        if (checked.length > 0) {
+            config.shapes = Array.from(checked).map(c => c.value);
+        }
+        config.min = document.getElementById('min-count').value;
+        config.max = document.getElementById('max-count').value;
+        config.time = parseInt(document.getElementById('display-time').value);
+        config.color = document.getElementById('color-rule').value;
+        config.size = document.getElementById('size-rule').value;
+        config.answer = document.getElementById('answer-mode').value;
+        config.sound = document.getElementById('sound-toggle').value;
+    }
+
+    /* ============ 設定モーダルの中身をテーマに合わせて作り直す ============ */
+    function buildShapeCheckboxes() {
+        const container = document.getElementById('shape-check-container');
+        container.innerHTML = '';
+        const theme = THEMES[currentTheme];
+        Object.keys(theme.emoji).forEach(key => {
+            const label = document.createElement('label');
+            label.innerHTML = `<input type="checkbox" class="shape-check" value="${key}"><span class="emoji-mini">${theme.emoji[key]}</span> ${theme.labels[key]}`;
+            container.appendChild(label);
+        });
+    }
+
+    function initShapeSelection() {
+        const checkboxes = Array.from(document.querySelectorAll('.shape-check'));
+        const theme = THEMES[currentTheme];
+        checkboxes.forEach(cb => cb.checked = false);
+
+        if (theme.initial) {
+            checkboxes.forEach(cb => { if (theme.initial.includes(cb.value)) cb.checked = true; });
+        } else {
+            const shuffled = [...checkboxes].sort(() => 0.5 - Math.random());
+            const n = Math.min(7, shuffled.length);
+            for (let i = 0; i < n; i++) shuffled[i].checked = true;
+        }
+        updateConfig();
+    }
+
+    document.getElementById('btn-random-select').addEventListener('click', () => {
+        const countInput = document.getElementById('random-count');
+        const checkboxes = Array.from(document.querySelectorAll('.shape-check'));
+
+        let count = parseInt(countInput.value) || 7;
+        if (count > checkboxes.length) count = checkboxes.length;
+        if (count < 1) count = 1;
+        countInput.value = count;
+
+        checkboxes.forEach(cb => cb.checked = false);
+        const shuffled = [...checkboxes].sort(() => 0.5 - Math.random());
+        for (let i = 0; i < count; i++) shuffled[i].checked = true;
+
+        updateConfig();
+    });
+
+    /* ============ 数字 △▽ ステッパー共通処理 ============ */
+    document.querySelectorAll('.num-stepper button[data-target]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById(btn.dataset.target);
+            const step = parseInt(btn.dataset.step);
+            const min = parseInt(input.min) || 1;
+            const max = parseInt(input.max) || 99;
+            let val = (parseInt(input.value) || min) + step;
+            if (val < min) val = min;
+            if (val > max) val = max;
+            input.value = val;
             updateConfig();
-            resetUI();
-            clearAllShapes();
+        });
+    });
+    document.getElementById('min-count').addEventListener('change', updateConfig);
+    document.getElementById('max-count').addEventListener('change', updateConfig);
 
-            const types = config.shapes.length ? config.shapes : ['tear'];
-            let minC = parseInt(config.min);
-            let maxC = parseInt(config.max);
-            if (minC > maxC) [minC, maxC] = [maxC, minC];
-            const num = Math.floor(Math.random() * (maxC - minC + 1)) + minC;
+    /* ============ モーダル開閉 ============ */
+    const overlay = document.getElementById('modal-overlay');
+    const settingsModal = document.getElementById('settings-modal');
+    const helpModal = document.getElementById('help-modal');
 
-            let tempItems = [];
-            for (let i = 0; i < num; i++) {
-                tempItems.push(types[Math.floor(Math.random() * types.length)]);
-            }
-            const existing = [...new Set(tempItems)];
-            state.target = existing[Math.floor(Math.random() * existing.length)];
-            state.count = tempItems.filter(x => x === state.target).length;
+    function openModal(modal) {
+        overlay.style.display = 'block';
+        modal.style.display = 'block';
+    }
+    function closeModals() {
+        overlay.style.display = 'none';
+        settingsModal.style.display = 'none';
+        helpModal.style.display = 'none';
+    }
 
-            generateLayout(tempItems);
+    document.getElementById('settings-trigger').onclick = () => openModal(settingsModal);
+    document.getElementById('close-settings').onclick = () => { updateConfig(); closeModals(); };
 
-            const msgHtml = `${getEmojiHTML(state.target)} は いくつ？`;
-            document.getElementById('message-overlay').innerHTML = msgHtml;
-            await wait(1000);
+    document.getElementById('help-trigger').onclick = () => openModal(helpModal);
+    document.getElementById('close-help').onclick = () => {
+        setHelpDismissed(document.getElementById('dont-show-again').checked);
+        closeModals();
+    };
+
+    overlay.onclick = () => { updateConfig(); closeModals(); };
+
+    /* ============ テーマ選択 ============ */
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.addEventListener('click', () => {
+            currentTheme = card.dataset.theme;
+            buildShapeCheckboxes();
+            initShapeSelection();
+
+            document.getElementById('theme-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+
             document.getElementById('message-overlay').innerHTML = '';
-            await wait(300);
-
-            renderItems(false);
-            playSound('pop');
-            await wait(config.time);
-            renderItems(true);
-
-            document.getElementById('message-overlay').innerHTML = msgHtml;
-            if (config.answer === 'buttons') {
-                let wrong = state.count + (Math.random() > 0.5 ? 1 : -1);
-                if (wrong < 1) wrong = state.count + 2;
-                if (wrong === state.count) wrong = state.count + 1;
-                const isLeftCorrect = Math.random() > 0.5;
-                const btn1 = document.getElementById('btn-choice-1');
-                const btn2 = document.getElementById('btn-choice-2');
-                btn1.innerText = isLeftCorrect ? state.count : wrong;
-                btn1.onclick = () => checkAnswer(parseInt(btn1.innerText));
-                btn2.innerText = isLeftCorrect ? wrong : state.count;
-                btn2.onclick = () => checkAnswer(parseInt(btn2.innerText));
-                btn1.style.display = 'block'; btn2.style.display = 'block';
-            } else {
-                document.getElementById('btn-check').style.display = 'block';
-            }
-            state.active = false;
-        }
-
-        function generateLayout(itemTypes) {
-            const area = document.getElementById('game-area');
-            const w = area.clientWidth; const h = area.clientHeight;
-            const basePx = Math.min(Math.max(Math.sqrt((w * h) / (itemTypes.length * 4)), 50), 180);
-            state.layoutItems = [];
-            const placed = [];
-            itemTypes.forEach(type => {
-                const px = config.size === 'random' ? basePx * (0.65 + Math.random() * 0.7) : basePx;
-                let x, y, overlap, tries = 0;
-                do {
-                    overlap = false;
-                    x = Math.random() * (w - px) + px / 2;
-                    y = Math.random() * (h - px) + px / 2;
-                    for (let p of placed) {
-                        const dist = Math.sqrt((x - p.x) ** 2 + (y - p.y) ** 2);
-                        if (dist < (px + p.px) / 2 * 0.95) { overlap = true; break; }
-                    }
-                } while (overlap && tries++ < 150);
-                placed.push({ x, y, px });
-                const rot = (config.color === 'rotate') ? Math.floor(Math.random() * 360) : 0;
-                state.layoutItems.push({ type, x, y, px, rot });
-            });
-        }
-
-        function clearAllShapes() {
-            document.getElementById('game-area').querySelectorAll('.shape').forEach(e => e.remove());
-        }
-
-        function renderItems(hidden) {
-            clearAllShapes();
-            if (hidden) return;
-            const area = document.getElementById('game-area');
-            state.layoutItems.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'shape';
-                el.style.width = el.style.height = item.px + 'px';
-                el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
-                el.style.transform = `translate(-50%, -50%) rotate(${item.rot || 0}deg)`;
-                el.innerHTML = getEmojiHTML(item.type);
-                const emo = el.querySelector('.emoji');
-                if (emo) emo.style.fontSize = item.px + 'px';
-                area.appendChild(el);
-            });
-        }
-
-        function checkAnswer(val) {
-            if (val === state.count) playSound('correct'); else playSound('wrong');
-            finishGame();
-        }
-
-        document.getElementById('btn-check').onclick = finishGame;
-
-        function finishGame() {
-            renderItems(false);
-            document.getElementById('message-overlay').innerHTML = '';
+            document.getElementById('btn-start').style.display = 'inline-block';
+            document.getElementById('btn-check').style.display = 'none';
             document.getElementById('btn-choice-1').style.display = 'none';
             document.getElementById('btn-choice-2').style.display = 'none';
-            document.getElementById('btn-check').style.display = 'none';
-            document.getElementById('btn-start').style.display = 'block';
-        }
+            clearAllShapes();
+            document.getElementById('feedback-text').style.display = 'none';
 
-        function resetUI() {
-            document.getElementById('btn-start').style.display = 'none';
-            document.getElementById('btn-check').style.display = 'none';
-            document.getElementById('message-overlay').innerHTML = '';
-        }
+            if (!getHelpDismissed()) {
+                document.getElementById('dont-show-again').checked = false;
+                openModal(helpModal);
+            }
+        });
+    });
 
-        function updateConfig() {
-            const checked = document.querySelectorAll('.shape-check:checked');
-            if (checked.length > 0) config.shapes = Array.from(checked).map(c => c.value);
-            config.min = document.getElementById('min-count').value;
-            config.max = document.getElementById('max-count').value;
-            config.time = parseInt(document.getElementById('display-time').value);
-            config.color = document.getElementById('color-rule').value;
-            config.size = document.getElementById('size-rule').value;
-            config.answer = document.getElementById('answer-mode').value;
-        }
+    document.getElementById('theme-trigger').onclick = () => {
+        state.active = false;
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('theme-screen').classList.add('active');
+        clearAllShapes();
+        document.getElementById('message-overlay').innerHTML = '';
+        document.getElementById('btn-check').style.display = 'none';
+        document.getElementById('btn-choice-1').style.display = 'none';
+        document.getElementById('btn-choice-2').style.display = 'none';
+        document.getElementById('feedback-text').style.display = 'none';
+    };
 
-        // 起動時にランダムで7つ選択
-        function initRandomSelection() {
-            const checkboxes = Array.from(document.querySelectorAll('.shape-check'));
-            checkboxes.forEach(cb => cb.checked = false);
-            const shuffled = [...checkboxes].sort(() => 0.5 - Math.random());
-            for (let i = 0; i < 7; i++) { shuffled[i].checked = true; }
-            updateConfig();
-        }
-
-        document.getElementById('btn-random-pick').onclick = () => {
-            const checkboxes = Array.from(document.querySelectorAll('.shape-check'));
-            const countInput = document.getElementById('random-type-count');
-            let count = parseInt(countInput.value);
-            if (count < 1) count = 1;
-            if (count > checkboxes.length) count = checkboxes.length;
-            countInput.value = count;
-            checkboxes.forEach(cb => cb.checked = false);
-            const shuffled = checkboxes.sort(() => 0.5 - Math.random());
-            for (let i = 0; i < count; i++) { shuffled[i].checked = true; }
-        };
-
-        const modal = document.getElementById('settings-modal');
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('settings-trigger').onclick = () => { modal.style.display = 'block'; overlay.style.display = 'block'; };
-        const closeFunc = () => { modal.style.display = 'none'; overlay.style.display = 'none'; updateConfig(); };
-        document.getElementById('close-settings').onclick = closeFunc;
-        overlay.onclick = closeFunc;
-        document.getElementById('btn-start').onclick = playSequence;
-
-        initRandomSelection();
-    </script>
+    document.getElementById('btn-start').onclick = playSequence;
+</script>
 </body>
 </html>
